@@ -19,6 +19,14 @@ type BlockscoutResponse = Record<string, BlockscoutChainEntry>;
 const BLOCKSCOUT_CHAINS_URL = "https://chains.blockscout.com/api/chains";
 
 /**
+ * Rewrites a plain-HTTP explorer URL to HTTPS. The server sends its Blockscout
+ * API key in the query string, so it must never talk to an instance over HTTP.
+ */
+export function forceHttps(url: string): string {
+  return url.replace(/^http:\/\//i, "https://");
+}
+
+/**
  * Fetches the list of chains with Blockscout explorers.
  * The response keys are chain IDs.
  */
@@ -49,7 +57,7 @@ export async function fetchBlockscoutChains(): Promise<
     const explorer = entry.explorers?.[0];
     if (explorer?.url) {
       result.set(chainId, {
-        url: explorer.url,
+        url: forceHttps(explorer.url),
         hostedBy: explorer.hostedBy,
         name: entry.name,
       });
